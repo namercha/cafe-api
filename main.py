@@ -41,8 +41,8 @@ class Cafe(db.Model):
 def home():
     return render_template("index.html")
 
-## HTTP GET - Read Record
 
+# HTTP GET - Read Record
 # When a GET request is made to "/random", return a random cafe from the database
 # However, we want to return information back in JSON, like a real API
 @app.route('/random', methods=['GET'])
@@ -52,8 +52,9 @@ def get_random_cafe():
     # Simply convert the random_cafe data record to a dictionary of key-value pairs.
     return jsonify(cafe=random_cafe.to_dict())
 
+
 # GET method to list all cafes in the database
-@app.route('/all', methods=['GET']):
+@app.route('/all', methods=['GET'])
 def get_all_cafes():
     cafes = db.session.query(Cafe).all()
     cafe_list = []
@@ -75,6 +76,17 @@ def get_all_cafes():
     all_cafes = {"cafes": cafe_list}
     all_cafes_json = jsonify(cafes=all_cafes["cafes"])
     return all_cafes_json
+
+
+# Creating search functionality to query the database for a certain cafe
+@app.route('/search', methods=['GET'])
+def get_cafe_at_location():
+    query_location = request.args.get("loc")
+    cafe = db.session.query(Cafe).filter_by(location=query_location).first()
+    if cafe:
+        return jsonify(cafe=cafe.to_dict())
+    else:
+        return jsonify(error={"Not Found": "Sorry, we don't have a cafe at that location."})
 
 
 ## HTTP POST - Create Record
